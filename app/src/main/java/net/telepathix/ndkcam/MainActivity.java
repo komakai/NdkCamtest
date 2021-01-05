@@ -21,14 +21,36 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("opencv_java4");
     }
 
+    private final Object sync = new Object();
     private VideoCapture videoCapture;
     private ImageView imageView;
     private static final int REQUEST_CODE = 1;
+    private boolean releasing = false;
 
     public static Bitmap convertMatToBitmap(Mat mat) {
         Bitmap ret = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(mat, ret);
         return ret;
+    }
+
+    private void syncOpen(int index) {
+        synchronized (sync) {
+            videoCapture.open(index);
+        }
+    }
+
+    private boolean syncRead(Mat mat) {
+        boolean ret;
+        synchronized (sync) {
+            ret = videoCapture.read(mat);
+        }
+        return ret;
+    }
+
+    private void syncRelease() {
+        synchronized (sync) {
+            videoCapture.release();
+        }
     }
 
     @Override
@@ -65,14 +87,16 @@ public class MainActivity extends AppCompatActivity {
     private void runCameraLoop() {
         new Thread(() -> {
             videoCapture = new VideoCapture();
-            videoCapture.open(0);
+            releasing = false;
+            syncOpen(0);
             Mat frame = new Mat();
-            while (videoCapture.read(frame) && !frame.empty()) {
+            while (!releasing && syncRead(frame) && !frame.empty()) {
                 Bitmap frameBitmap = convertMatToBitmap(frame);
                 final BitmapDrawable frameDrawable = new BitmapDrawable(getResources(), frameBitmap);
                 runOnUiThread(() -> imageView.setImageDrawable(frameDrawable));
             }
-            videoCapture.release();
+            syncRelease();
+            videoCapture = null;
         }).start();
     }
 
