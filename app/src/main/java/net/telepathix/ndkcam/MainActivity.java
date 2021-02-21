@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
             videoCapture = new VideoCapture();
             releasing = false;
             syncOpen(0);
+            videoCapture.set(Videoio.CAP_PROP_CONVERT_RGB, 1);
             Mat frame = new Mat();
             while (!releasing && syncRead(frame) && !frame.empty()) {
                 Bitmap frameBitmap = convertMatToBitmap(frame);
