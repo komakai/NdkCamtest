@@ -28,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private boolean releasing = false;
 
+    private static int makeFourCC(char c1, char c2, char c3, char c4) {
+        return  ((c1 & 0x000000FF) | ((c2 << 8) & 0x0000FF00) | ((c3 << 16) & 0x00FF0000) | ((c4 << 24) & 0xFF000000));
+    }
+
     public static Bitmap convertMatToBitmap(Mat mat) {
         Bitmap ret = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(mat, ret);
@@ -90,7 +94,9 @@ public class MainActivity extends AppCompatActivity {
             videoCapture = new VideoCapture();
             releasing = false;
             syncOpen(0);
-            videoCapture.set(Videoio.CAP_PROP_CONVERT_RGB, 1);
+            videoCapture.set(Videoio.CAP_PROP_FOURCC, makeFourCC('R','G','B','3'));
+            videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, 1280);
+            videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, 720);
             Mat frame = new Mat();
             while (!releasing && syncRead(frame) && !frame.empty()) {
                 Bitmap frameBitmap = convertMatToBitmap(frame);
