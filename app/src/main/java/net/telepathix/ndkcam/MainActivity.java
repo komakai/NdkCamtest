@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
             releasing = false;
             syncOpen(0);
             videoCapture.set(Videoio.CAP_PROP_FOURCC, makeFourCC('R','G','B','3'));
-            videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, 1280);
-            videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, 720);
+            videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, 1440);
+            videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, 1080);
             Mat frame = new Mat();
             while (!releasing && syncRead(frame) && !frame.empty()) {
                 Bitmap frameBitmap = convertMatToBitmap(frame);
